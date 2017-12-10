@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="teamchemistrybuilder" basedir="." default="aavagrant.deploy">
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	  <classpath>
+	    <pathelement location="${basedir}/server/dev/ant/ant-contrib-1.0b3.jar"/>
+	  </classpath>
+	</taskdef>
+	
+  <!-- properties -->
+  <property file="../build.properties"/>
+	
+    <!--~~~~~~~~~ Vagrant Deploy ~~~~~~~~~-->
+    <target name="aavagrant.deploy">
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'source/public/storage' --exclude 'node_modules/' --exclude '.settings/' /vagrant/ /var/www/teamchemistrybuilder/"/>
+      </exec>
+    </target>
+	
+    <!--~~~~~~~~~ Artisan Run ~~~~~~~~~-->
+    <target name="artisan.run" depends="aavagrant.deploy">
+      <input message="Please enter the artisan command" addproperty="artisanCommandStr" />
+    	<propertyregex property="artisanCommandStrFinal" input="${artisanCommandStr}" regexp='"' replace="'" global="true" defaultValue="${artisanCommandStr}" />
+    	<echo message="Executing: php artisan ${artisanCommandStrFinal}"/>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; php artisan ${artisanCommandStrFinal}"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>    	
+    </target>
+	
+    <!--~~~~~~~~~ Artisan Make Model + Migration ~~~~~~~~~-->
+    <target name="artisan.make.model" depends="aavagrant.deploy">
+      <input message="Please enter the name of the Model (migration will alsi be generated)" addproperty="artisanCommandStr" />
+      <propertyregex property="artisanCommandStrFinal" input="${artisanCommandStr}" regexp='"' replace="'" global="true" defaultValue="${artisanCommandStr}" />
+      <echo message="Executing: php artisan make:model ${artisanCommandStrFinal} -m"/>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; php artisan make:model ${artisanCommandStrFinal} -m"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>     
+    </target>	
+	
+    <!--~~~~~~~~~ Artisan Make Controller ~~~~~~~~~-->
+    <target name="artisan.make.controller" depends="aavagrant.deploy">
+      <input message="Please enter the name of the Controller" addproperty="artisanCommandStr" />
+      <propertyregex property="artisanCommandStrFinal" input="${artisanCommandStr}" regexp='"' replace="'" global="true" defaultValue="${artisanCommandStr}" />
+      <echo message="Executing: php artisan make:controller ${artisanCommandStrFinal} --resource"/>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; php artisan make:controller ${artisanCommandStrFinal} --resource"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>     
+    </target>
+	
+    <!--~~~~~~~~~ Artisan Make Migration ~~~~~~~~~-->
+    <target name="artisan.make.migration" depends="aavagrant.deploy">
+      <input message="Please enter the name of the Migration" addproperty="artisanCommandStr" />
+      <propertyregex property="artisanCommandStrFinal" input="${artisanCommandStr}" regexp='"' replace="'" global="true" defaultValue="${artisanCommandStr}" />
+      <echo message="Executing: php artisan make:migration ${artisanCommandStrFinal} --resource"/>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; php artisan make:migration ${artisanCommandStrFinal}"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>     
+    </target> 	
+	
+    <!--~~~~~~~~~ Composer Require ~~~~~~~~~-->
+    <target name="composer.require" depends="aavagrant.deploy">
+    	<input message="Please enter the value to be added after: composer require" addproperty="composerRequireStr" />
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; composer require ${composerRequireStr}"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>
+    </target>	
+	
+    <!--~~~~~~~~~ Composer Remove ~~~~~~~~~-->
+    <target name="composer.remove" depends="aavagrant.deploy">
+      <input message="Please enter the value to be added after: composer remove" addproperty="composerRemoveStr" />
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; composer remove ${composerRemoveStr}"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>  	
+    </target> 	
+  
+    <!--~~~~~~~~~ Run Migrations ~~~~~~~~~-->
+    <target name="db.run.migrations" depends="aavagrant.deploy">
+	    <exec dir="${basedir}" executable="vagrant">
+	      <arg value="ssh"/>
+		    <arg value="-c"/>
+		    <arg value="cd /var/www/teamchemistrybuilder/source; php artisan migrate"/>
+	    </exec>
+    </target>
+	
+    <!--~~~~~~~~~ Run Migrations Seed ~~~~~~~~~-->
+    <target name="db.run.migrations.seed" depends="aavagrant.deploy">
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; php artisan migrate --seed"/>
+      </exec>
+    </target>	
+	
+    <!--~~~~~~~~~ Composer Update ~~~~~~~~~-->
+    <target name="composer.update" depends="aavagrant.deploy">
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; composer update"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>   
+    </target>	
+    
+    <!--~~~~~~~~~ Vagrant destroy ~~~~~~~~~-->
+    <target name="vagrant.destroy">
+      <input message="Are you sure you want to DESTROY Vagrant?${line.separator}ALL MYSQL/UPLOAD FILE data will be DELETED!" addproperty="okStr" validargs="YES,NO" defaultvalue="NO" />
+      <if>
+        <equals arg1="${okStr}" arg2="YES"/>
+        <then>
+          <exec dir="${basedir}" executable="vagrant">
+            <arg value="destroy"/>
+            <arg value="--force"/>
+          </exec>
+        </then>
+      </if>
+    </target>    
+    
+    <!--~~~~~~~~~ Vagrant up ~~~~~~~~~-->
+    <target name="vagrant.up">
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="up"/>
+      </exec>    
+    </target>
+	
+    <!--~~~~~~~~~ Vagrant npm run dev ~~~~~~~~~-->
+    <target name="vagrant.npm.run.dev" depends="aavagrant.deploy">
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; npm run dev"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>    	
+    </target>	
+	
+	
+    <!--~~~~~~~~~ Vagrant npm install ~~~~~~~~~-->
+    <target name="vagrant.npm.install" depends="aavagrant.deploy">
+    	<input message="Please enter the value to be added after: npm install" addproperty="npmInstallStr" />
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="cd /var/www/teamchemistrybuilder/source; npm install ${npmInstallStr}"/>
+      </exec>
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+        <arg value="rsync -vaz --delete --no-perms --no-owner --no-group --exclude '.git/' --exclude '.vagrant/' --exclude 'source/storage/' --exclude 'node_modules/' --exclude '.settings/' /var/www/teamchemistrybuilder/ /vagrant/"/>
+      </exec>     
+    </target>
+	
+	
+    <!--~~~~~~~~~ Parser run ~~~~~~~~~-->
+    <target name="zparser.run-cf">
+      <exec dir="${basedir}" executable="vagrant">
+        <arg value="ssh"/>
+        <arg value="-c"/>
+      	<arg value="cd /var/www/teamchemistrybuilder/source; php artisan parser:parse test"/>
+      </exec>
+    </target> 	
+	
+	
+
+</project>

@@ -1,0 +1,15 @@
+---
+- name: Ensure Redis is installed.
+  apt:
+    name: "{{ redis.daemon }}"
+    state: present
+
+- name: Ensure Redis is configured.
+  template:
+    src: redis.conf.j2
+    dest: "{{ redis.conf_path }}"
+    mode: 0644
+  notify: restart redis
+
+- name: Ensure Redis is running and enabled on boot.
+  service: "name={{ redis.daemon }} state=started enabled=yes"

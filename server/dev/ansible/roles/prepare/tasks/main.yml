@@ -1,0 +1,16 @@
+---
+- name: Create www folder
+  file: dest={{ nginx.source_folder }}  state=directory
+    
+- name: Copy sources to www folder
+  synchronize: 
+    mode: pull
+    src: "/vagrant/"
+    dest: "{{ nginx.source_folder }}/"
+    recursive: yes
+    rsync_opts:
+      - "--no-motd"
+      - "--exclude=.git"
+      - "--exclude=.vagrant"
+      - "--exclude=.settings"
+      - "--exclude=./server/"

@@ -1,0 +1,78 @@
+---
+# application tasks to be customized and to run after the main provision
+
+# Check Laravel vendor folder
+
+- name: Get ENV file
+  local_action: stat path={{ nginx.source_folder }}/.env
+  register: env_file
+  ignore_errors: True
+
+# https://github.com/ansible/ansible/issues/9526
+- name: Copy .env.local to .env
+  copy: src={{ nginx.source_folder }}/source/.env.local dest=/tmp/.env
+  when: not env_file.stat.exists
+
+- name: Move .env.local to .env
+  command: mv /tmp/.env {{ nginx.source_folder }}/source/.env 
+  when: not env_file.stat.exists
+
+- stat:
+   path: /var/www/teamchemistrybuilder/vendor
+  register: vendor_folder
+  ignore_errors: True
+  
+- name: Run composer install
+  command: composer install chdir={{ nginx.source_folder }}/source
+  when: not vendor_folder.stat.exists
+  
+- stat:
+   path: /var/www/teamchemistrybuilder/node_modules
+  register: node_modules_folder
+  ignore_errors: True
+
+- name: Run npm install
+  command: npm install chdir={{ nginx.source_folder }}/source
+  when: not node_modules_folder.stat.exists
+  register: result
+  failed_when: '"ERR!" in result.stderr'
+   
+- name: Run npm install cross-env
+  command: npm install cross-env chdir={{ nginx.source_folder }}/source
+  ignore_errors: True
+    
+- name: Run npm install node-sass
+  command: npm install node-sass chdir={{ nginx.source_folder }}/source
+  ignore_errors: True
+  
+- name: Create symlink for public dir
+  sudo: yes
+  file: src=/var/www/teamchemistrybuilder/source/storage/app/public dest=/var/www/teamchemistrybuilder/source/public/storage state=link force=yes
+  
+- name: Download wkhtmltoimage binary to /usr/local/bin/
+  get_url:
+    url: https://github.com/h4cc/wkhtmltoimage-amd64/raw/0.12.3/bin/wkhtmltoimage-amd64
+    dest: /usr/local/bin
+    mode: 0440  
+
+- name: Download wkhtmltopdf binary to /usr/local/bin/
+  get_url:
+    url: https://github.com/h4cc/wkhtmltopdf-amd64/raw/0.12.3/bin/wkhtmltopdf-amd64
+    dest: /usr/local/bin
+    mode: 0440
+
+- name: Make executable wkhtmltoimage
+  sudo: yes
+  command: chmod +x /usr/local/bin/wkhtmltoimage-amd64
+  
+- name: Make executable wkhtmltopdf
+  sudo: yes
+  command: chmod +x /usr/local/bin/wkhtmltopdf-amd64  
+  
+#- name: Apt get libxrender1 for wkhtmltopdf
+#  sudo: yes
+#  command: apt-get install libxrender1
+
+- name: Chown www folder 
+  command: chown -R vagrant:vagrant {{ nginx.source_folder }}/
+  
