@@ -25,10 +25,10 @@ Vagrant.configure("2") do |config|
     settings = YAML.load_file 'server/dev/ansible/vars/all.yml'
 
     config.vm.provider :virtualbox do |v|
-        v.name = "teamchemistrybuilder"
+        v.name = settings['app']['name']
         v.customize [
             "modifyvm", :id,
-            "--name", "teamchemistrybuilder",
+            "--name", settings['app']['name'],
             "--memory", 1024,
             "--natdnshostresolver1", "on",
             "--cpus", 1,
@@ -36,10 +36,10 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.box = "debian/contrib-jessie64"
-    
-    config.vm.network :private_network, ip: "192.168.168.169"
+
+    config.vm.network :private_network, ip: "192.168.168.161"
     config.vm.network "forwarded_port", guest: 80, host: 8080
-    config.vm.network "forwarded_port", guest: 3306, host: 33066 
+    config.vm.network "forwarded_port", guest: 3306, host: 33066
     config.vm.network "forwarded_port", guest: 6001, host: 6001
     config.ssh.forward_agent = true
 
@@ -68,7 +68,7 @@ module OS
 end
 
 if OS.mac?
-    config.vm.synced_folder "./", "/var/www/teamchemistrybuilder", mount_options: ["dmode=777", "fmode=777"]
+    config.vm.synced_folder "./", "/var/www/" + settings['app']['name'], mount_options: ["dmode=777", "fmode=777"]
 end
 
 end

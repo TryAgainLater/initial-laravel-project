@@ -1,4 +1,6 @@
 ---
+app:
+    name: replace_project_name
 server:
     install: '1'
     packages: [vim, htop]
@@ -9,13 +11,13 @@ vagrant_local:
     vm: { base_box: trusty64, hostname: default, ip: 192.168.33.99, memory: '512', sharedfolder: ./, syncType: '0' }
 nginx:
     install: '1'
-    docroot: /var/www/teamchemistrybuilder/source/public
-    source_folder: /var/www/teamchemistrybuilder
-    servername: teamchemistrybuilder.dev
+    docroot: '/var/www/{{ app.name }}/source/public'
+    source_folder: '/var/www/{{ app.name }}'
+    servername: '{{ app.name }}.dev'
 mysql:
     install: '1'
     root_password: IchefEilganowsnuchynciHuvHang1kijlarjIvvavyow
-    database: teamchemistrybuilder
+    database: '{{ app.name }}'
     user: project_db_user
     password: project_db_password
     dump: ''
