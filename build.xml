@@ -191,7 +191,6 @@
     </exec>
   </target>
 
-
   <!--~~~~~~~~~ Vagrant npm install ~~~~~~~~~-->
   <target name="vagrant.npm.install" depends="aavagrant.deploy">
     <input message="Please enter the value to be added after: npm install" addproperty="npmInstallStr"/>
@@ -207,15 +206,13 @@
     </exec>
   </target>
 
-
-  <!--~~~~~~~~~ Parser run ~~~~~~~~~-->
-  <target name="zparser.run-cf">
+  <!--~~~~~~~~~ Run All Tests with PHPUnit ~~~~~~~~~ -->
+  <target name="phpunit.run.all" depends="aavagrant.deploy">
     <exec dir="${basedir}" executable="vagrant">
       <arg value="ssh"/>
       <arg value="-c"/>
-      <arg value="cd /var/www/${ant.project.name}/source; php artisan parser:parse test"/>
+      <arg value='cd /var/www/teamchemistrybuilder/source; php artisan config:clear; vendor/bin/phpunit'/>
     </exec>
   </target>
-
 
 </project>
