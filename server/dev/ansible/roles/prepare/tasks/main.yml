@@ -14,3 +14,4 @@
       - "--exclude=.vagrant"
       - "--exclude=.settings"
       - "--exclude=./server/"
+      - "--exclude=.idea/"

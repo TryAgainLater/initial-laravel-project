@@ -18,7 +18,7 @@
   when: not env_file.stat.exists
 
 - stat:
-   path: /var/www/teamchemistrybuilder/vendor
+  path: /var/www/{{ app.name }}/vendor
   register: vendor_folder
   ignore_errors: True
   
@@ -27,7 +27,7 @@
   when: not vendor_folder.stat.exists
   
 - stat:
-   path: /var/www/teamchemistrybuilder/node_modules
+  path: /var/www/{{ app.name }}/node_modules
   register: node_modules_folder
   ignore_errors: True
 
@@ -47,7 +47,7 @@
   
 - name: Create symlink for public dir
   sudo: yes
-  file: src=/var/www/teamchemistrybuilder/source/storage/app/public dest=/var/www/teamchemistrybuilder/source/public/storage state=link force=yes
+  file: src=/var/www/{{ app.name }}/source/storage/app/public dest=/var/www/{{ app.name }}/source/public/storage state=link force=yes
   
 - name: Download wkhtmltoimage binary to /usr/local/bin/
   get_url:
